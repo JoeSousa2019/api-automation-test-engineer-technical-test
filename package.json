@@ -1,0 +1,27 @@
+{
+  "name": "joesousaautomationengineertest",
+  "version": "1.0.0",
+  "description": "Joe Sousa Automation Engineer Test, Api using Gherkin syntax",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "delete:reports": "rimraf mkdirp cypress/cucumberReports/*",
+    "prereport": "npm run delete:reports"
+  },
+  "author": "Joe Sousa",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^13.5.1",
+    "multiple-cucumber-html-reporter": "^3.5.0"
+  },
+  "dependencies": {
+    "@badeball/cypress-cucumber-preprocessor": "^19.1.1",
+    "@cypress/browserify-preprocessor": "latest"
+  },
+  "cypress-cucumber-preprocessor": {
+    "json": {
+      "enabled": true,
+      "output": "cypress/cucumberReports/results.json"
+    }
+  }
+}
