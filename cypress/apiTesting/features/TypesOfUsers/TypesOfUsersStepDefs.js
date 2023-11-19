@@ -1,59 +1,71 @@
 import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
 
-Given('I am free user', () => {
-    //adding free user account id
+
+Given('I am on Playlist api user url', () => {
+    cy.setBaseUrl().as('url');
 });
 
-When('request for free user is sent', () => {
-    cy.request({
-        url: 'https://a8e38tulbj.execute-api.eu-west-2.amazonaws.com/api/playlists/free',
-        method: 'GET'
-    }).as('apiResponse')
+When('request for {string} user is sent', (typeOfUser) => {
+    cy.get('@url').then(baseUrl => {
+        cy.request({
+            url:`${baseUrl}${typeOfUser}`,
+            method: 'GET',
+            failOnStatusCode: false
+        }).as('apiResponse')
+    })
 });
 
-Then('the playlist api response should not include Premium with satus code as {string}', (statusCode) => {
-    cy.get('@apiResponse').then(response =>{
-        cy.wrap(response.body.playlists[1].name).should('not.include', 'Premium')
+Then('the playlist api response should not include {string} with status code as {string}', (expectedResponse, statusCode) => {
+    cy.get('@apiResponse').then(response => {
+        const isPlaylistPresent = response.body.playlists.some(playlist => {
+            return playlist.name.includes(expectedResponse);
+        });
+        cy.wrap(isPlaylistPresent).should('be.false');
         expect(response.status.toString()).to.equal(statusCode);
-    })
+    });
 });
-
-Given('I am premium user', () => {
-    //adding Premium user account id
-});
-    
-When('request for premium user is sent', () => {
-    cy.request({
-        url: 'https://a8e38tulbj.execute-api.eu-west-2.amazonaws.com/api/playlists/premium',
-        method: 'GET'
-    }).as('apiResponse')
-});
-    
+ 
 Then('the playlist api response should include {string} with status code as {string}', (expectedResponse, statusCode) => {
-    cy.get('@apiResponse').then(response =>{
-        cy.wrap(response.body.playlists[1].name).should('include', expectedResponse)
-        expect(response.status.toString()).to.equal(statusCode);    
+    cy.get('@apiResponse').then(response => {
+        const isPlaylistPresent = response.body.playlists.some(playlist => {
+            return playlist.name.includes(expectedResponse);
+        });
+        cy.wrap(isPlaylistPresent).should('be.true');
+        expect(response.status.toString()).to.equal(statusCode);
+    });
+});
+
+When('request for api user without endpoint is sent', () => {
+    cy.get('@url').then(baseUrl => {
+        cy.request({
+            url:`${baseUrl}`,
+            method: 'GET',
+            failOnStatusCode: false
+        }).as('apiResponse')
     })
 });
 
-Given('I am other user type', () =>{
-    //adding Premium user account id
-});
-
-When('request for other user type is sent', () =>{
-    cy.request({
-        url: 'https://a8e38tulbj.execute-api.eu-west-2.amazonaws.com/api/playlists/plus',
-        method: 'GET',
-        failOnStatusCode: false
-    }).as('apiResponse')
-});
-
-Then('the playlist api response should return status code {string} and message of unknown user', (statusCode) =>{
+Then('the playlist api response should return status code {string} with message as {string}', (statusCode, errorMessage) =>{
     cy.get('@apiResponse').then(response =>{
-        console.log(response)
-        console.log(response.status)
         expect(response.status.toString()).to.equal(statusCode)
-        expect(response.body.messsage).to.equal('Unknown user type')
+        expect(response.body.message).to.equal(errorMessage)
+    }) 
+});
+
+When('a invalid request for endpoint is sent {string}', (invalidInput) => {
+    cy.get('@url').then(baseUrl => {
+        cy.request({
+            url:`${baseUrl}${invalidInput}`,
+            method: 'GET',
+            failOnStatusCode: false
+        }).as('apiResponse')
+    })
+});
+
+Then('the playlist api response should return status code {string} and message as {string}', (statusCode, invalidErrorMessage) =>{
+    cy.get('@apiResponse').then(response =>{
+        expect(response.status.toString()).to.equal(statusCode)
+        expect(response.body.messsage).to.equal(invalidErrorMessage)
     }) 
 });
 
