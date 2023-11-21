@@ -11,6 +11,11 @@
 //
 // -- This is a parent command --
 // Cypress.Commands.add('login', (email, password) => { ... })
+
+Cypress.Commands.add('setBaseUrl', () =>{
+    const baseUrl = "https://a8e38tulbj.execute-api.eu-west-2.amazonaws.com/api/playlists/";
+    return baseUrl;
+});
 //
 //
 // -- This is a child command --
